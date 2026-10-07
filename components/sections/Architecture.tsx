@@ -72,7 +72,8 @@ function Block({ b, active, onEnter, onLeave }: { b: BlockDef; active: boolean; 
     <div
       className="arch-block absolute"
       data-id={b.id}
-      onPointerEnter={onEnter}
+      // Hover selects with a mouse only — a finger scrolling past must not swing the camera.
+      onPointerEnter={(e) => e.pointerType === "mouse" && onEnter()}
       onPointerLeave={onLeave}
       style={
         {
@@ -158,7 +159,7 @@ function Billboard({ b, i, active, onSelect }: { b: BlockDef; i: number; active:
       type="button"
       tabIndex={-1}
       onClick={onSelect}
-      onPointerEnter={onSelect}
+      onPointerEnter={(e) => e.pointerType === "mouse" && onSelect()}
       className={cn(
         "arch-label absolute whitespace-nowrap rounded-xl px-3 py-2 text-left transition-[background-color,box-shadow] duration-300",
         active
@@ -321,11 +322,11 @@ export default function Architecture() {
     }, world);
 
     // ── Drag to orbit ──
-    let drag: { x: number; y: number; s: number; t: number } | null = null;
+    let drag: { x: number; y: number; s: number; t: number; touch: boolean } | null = null;
     const readDeg = (v: string) => parseFloat(getComputedStyle(world).getPropertyValue(v)) || 0;
     const down = (e: PointerEvent) => {
       if ((e.target as HTMLElement).closest("button")) return;
-      drag = { x: e.clientX, y: e.clientY, s: readDeg("--dspin"), t: readDeg("--dtilt") };
+      drag = { x: e.clientX, y: e.clientY, s: readDeg("--dspin"), t: readDeg("--dtilt"), touch: e.pointerType !== "mouse" };
       stage.setPointerCapture(e.pointerId);
       stage.dataset.dragging = "";
     };
@@ -333,7 +334,8 @@ export default function Architecture() {
       if (!drag) return;
       // Grab-and-turn: the model follows the pointer (drag left → it turns left).
       const s = drag.s - (e.clientX - drag.x) * 0.25;
-      const t = Math.max(-40, Math.min(14, drag.t - (e.clientY - drag.y) * 0.15));
+      // Touch drags only turn the model (vertical swipes belong to page scrolling).
+      const t = drag.touch ? drag.t : Math.max(-40, Math.min(14, drag.t - (e.clientY - drag.y) * 0.15));
       gsap.to(world, { "--dspin": `${s}deg`, "--dtilt": `${t}deg`, duration: 0.5, ease: "power3.out", overwrite: "auto" });
     };
     const up = () => {

@@ -32,7 +32,9 @@ export default function GradientBackground() {
   const py = useTransform(p.y, (v) => v * -12);
 
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-bg">
+    // Sized to the large viewport (lvh), not inset-0: on phones the address bar
+    // showing/hiding would otherwise resize this layer and its canvases mid-scroll.
+    <div aria-hidden className="pointer-events-none fixed left-0 top-0 z-0 h-[100lvh] w-full overflow-hidden bg-bg">
       <motion.div className="absolute -inset-[10%] will-change-transform" style={{ y }}>
         <motion.div className="absolute inset-0 will-change-transform" style={{ x: px, y: py }}>
           {BLOBS.map((b, i) => (

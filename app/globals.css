@@ -161,6 +161,9 @@
 /* ── Base ────────────────────────────────────────────────────── */
 html {
   background: var(--bg);
+  /* Nothing may widen the page: on phones, horizontal overflow makes the browser
+     zoom the layout out and the whole page shifts as animations move things. */
+  overflow-x: clip;
 }
 
 body {

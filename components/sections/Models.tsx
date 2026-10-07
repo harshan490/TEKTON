@@ -3,7 +3,6 @@
 import CircularCarousel from "@/components/reactbits/CircularCarousel";
 import BlurText from "@/components/reactbits/BlurText";
 import Reveal, { SectionLabel } from "@/components/ui/Reveal";
-import { useMedia } from "@/hooks/useMedia";
 import { MODELS, type Model } from "@/config/content";
 import { MODEL_BRAND } from "@/config/site";
 import { cn } from "@/lib/utils";
@@ -83,8 +82,9 @@ function ModelFace({ model, index, w, h }: { model: Model; index: number; w: num
 
 /** The model family on a 3D ring. Drag it, or let it drift. */
 export default function Models() {
-  const small = useMedia("(max-width: 640px)");
-  const W = small ? 270 : 330;
+  // One card size everywhere: the ring scales itself to fit its container, so a
+  // phone-specific size (picked after load) would only remount it and jump.
+  const W = 320;
   const H = Math.round(W / 0.78);
 
   const items = MODELS.map((m, i) => ({
@@ -111,7 +111,6 @@ export default function Models() {
 
       <div className="relative mx-auto mt-6 h-[min(680px,82svh)] w-full max-w-[1320px] text-ink">
         <CircularCarousel
-          key={W}
           items={items}
           preset="orbit"
           intro="rise"

@@ -47,12 +47,15 @@ export default function Principles() {
         // …and the card arrives from its side.
         const card = item.querySelector(".tl-card");
         const fromLeft = i % 2 === 0;
+        // Phones: rise in place (a sideways offset would push past the screen edge).
+        const narrow = window.matchMedia("(max-width: 767px)").matches;
         gsap.fromTo(
           card,
-          { autoAlpha: 0, x: window.innerWidth < 768 ? 30 : fromLeft ? -50 : 50, filter: "blur(10px)" },
+          { autoAlpha: 0, x: narrow ? 0 : fromLeft ? -50 : 50, y: narrow ? 24 : 0, filter: "blur(10px)" },
           {
             autoAlpha: 1,
             x: 0,
+            y: 0,
             filter: "blur(0px)",
             duration: 1.1,
             ease: "expo.out",
