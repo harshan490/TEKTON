@@ -10,7 +10,7 @@ export const site = {
   title: "TEKTON AGI — Intelligence that runs on your machine",
   description:
     "TEKTON AGI builds fast, local-first models that reason and act in real time on consumer hardware — no cloud, no per-token rent, no data leaving your device.",
-  url: "https://tekton.ai",
+  url: "https://tekton.vercel.app",
   tagline: "Learn. Build. Beyond.",
   /** ISO date (e.g. "2026-12-01T00:00:00Z") shows a countdown; null shows the status line. */
   launchDate: null as string | null,
