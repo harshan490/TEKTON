@@ -1,0 +1,416 @@
+@import "tailwindcss";
+@import "lenis/dist/lenis.css";
+
+/* ── Wordmark face ───────────────────────────────────────────────
+   Eurostile Extended is a licensed font, so it is not bundled. If it is
+   installed on the visitor's machine it is used; otherwise Michroma (a free
+   face drawn after Eurostile Extended) stands in. To ship the real face, add
+   the licensed file to /public/fonts and a url() source below. */
+@font-face {
+  font-family: "Eurostile Extended";
+  font-weight: 700;
+  font-display: swap;
+  src: local("Eurostile Extended Bold"), local("EurostileExtended-Bold"), local("Eurostile LT Std Bold Extended"),
+    local("EurostileLTStd-BoldEx2"), local("Eurostile Bold Extended Two"), local("EurostileT-BoldExtended");
+}
+@font-face {
+  font-family: "Eurostile Extended";
+  font-weight: 400;
+  font-display: swap;
+  src: local("Eurostile Extended"), local("EurostileExtended-Regular"), local("Eurostile LT Std Extended"),
+    local("EurostileLTStd-Ex2"), local("Eurostile Extended Two");
+}
+
+/* ── Design tokens ───────────────────────────────────────────── */
+:root {
+  --bg: #05070b;
+  --bg-2: #0a1020;
+  --ink: #eef2f7;
+  --ink-2: #a9b4c4;
+  --ink-3: #66728a;
+  --steel: linear-gradient(180deg, #f5f7fa 0%, #9aa6b8 45%, #e3e8ef 60%, #6b7689 100%);
+  --portal: #cfe0f5;
+  --accent: #8fb8ff;
+  --glass-bg: rgba(255, 255, 255, 0.06);
+  --glass-border: rgba(255, 255, 255, 0.14);
+  --glass-hi: rgba(255, 255, 255, 0.35);
+  --glass-blur: 22px;
+
+  color-scheme: dark;
+}
+
+@media (max-width: 767px) {
+  :root {
+    --glass-blur: 14px;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-2: var(--bg-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-portal: var(--portal);
+  --color-accent: var(--accent);
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-serif: var(--font-instrument-serif), ui-serif, Georgia, serif;
+  --font-wordmark: "Eurostile Extended", var(--font-michroma), ui-sans-serif, sans-serif;
+
+  --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --animate-star-movement-bottom: star-movement-bottom linear infinite alternate;
+  --animate-star-movement-top: star-movement-top linear infinite alternate;
+}
+
+/* Background light drift */
+@keyframes blob-a {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(8vw, -6vh, 0) scale(1.12); }
+  100% { transform: translate3d(-4vw, 5vh, 0) scale(0.94); }
+}
+@keyframes blob-b {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(-10vw, 8vh, 0) scale(0.9); }
+  100% { transform: translate3d(6vw, 12vh, 0) scale(1.1); }
+}
+@keyframes blob-c {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(14vw, 10vh, 0) scale(1.25); }
+}
+
+/* Architecture model: live routes glow and flow while a packet travels them */
+.arch-route-live {
+  opacity: 0;
+  transition: opacity 0.4s;
+  filter: drop-shadow(0 0 6px rgba(143, 184, 255, 0.9));
+  animation: flow 0.9s linear infinite;
+}
+.arch-route-live.is-on {
+  opacity: 1;
+}
+@keyframes arch-in {
+  from { opacity: 0; transform: translateY(8px); filter: blur(6px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+
+@keyframes sheen {
+  0% { background-position: 130% 0; }
+  30%, 100% { background-position: -30% 0; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+@keyframes sealed {
+  0%, 100% { transform: scaleY(0.55); opacity: 0.5; }
+  50% { transform: scaleY(1); opacity: 1; }
+}
+@keyframes node-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(143, 184, 255, 0.55), 0 0 18px 2px rgba(143, 184, 255, 0.6); }
+  50% { box-shadow: 0 0 0 10px rgba(143, 184, 255, 0), 0 0 28px 6px rgba(143, 184, 255, 0.85); }
+}
+
+/* How-we-work timeline: a node ignites when the light reaches it */
+.tl-item.is-active .tl-node {
+  background: #8fb8ff;
+  border-color: rgba(216, 236, 248, 0.9);
+  animation: node-pulse 2.4s ease-in-out infinite;
+}
+.tl-item.is-active .tl-node > span {
+  background: #ffffff;
+}
+.tl-item.is-active .tl-num {
+  color: var(--accent);
+}
+.tl-item.is-active .tl-card {
+  box-shadow:
+    inset 0 1px 1px rgba(216, 236, 248, 0.22),
+    inset 0 24px 48px rgba(168, 216, 245, 0.07),
+    inset 0 0 0 1px rgba(143, 184, 255, 0.28),
+    0 0 50px -14px rgba(143, 184, 255, 0.55),
+    0 24px 32px rgba(6, 6, 14, 0.7);
+}
+
+/* Gate scroll cue */
+@keyframes cue {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(200%); }
+}
+
+/* Hero mark: a slow breath of light */
+@keyframes mark-glow {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(1.08); }
+}
+@keyframes ring-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes star-movement-bottom {
+  0% { transform: translate(0%, 0%); opacity: 1; }
+  100% { transform: translate(-100%, 0%); opacity: 0; }
+}
+@keyframes star-movement-top {
+  0% { transform: translate(0%, 0%); opacity: 1; }
+  100% { transform: translate(100%, 0%); opacity: 0; }
+}
+
+/* ── Base ────────────────────────────────────────────────────── */
+html {
+  background: var(--bg);
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: clip;
+}
+
+::selection {
+  background: rgba(143, 184, 255, 0.35);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* Component classes live in a layer so Tailwind utilities (absolute, rounded-*, …)
+   can override them — unlayered CSS would beat every utility. */
+@layer components {
+/* ── Type helpers ────────────────────────────────────────────── */
+.label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.4;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.text-steel {
+  background: var(--steel);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.serif-accent {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+/* ── Liquid glass ────────────────────────────────────────────── */
+.glass {
+  position: relative;
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  box-shadow:
+    inset 0 1px 0 var(--glass-hi),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.04),
+    0 20px 60px -20px rgba(0, 0, 0, 0.6);
+}
+
+/* Darker variant where body text must hold 4.5:1 over a bright video. */
+.glass-deep {
+  background: rgba(8, 12, 22, 0.42);
+}
+
+/* ── Live dot ────────────────────────────────────────────────── */
+.live-dot {
+  position: relative;
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+}
+.live-dot::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  border: 1px solid var(--accent);
+  animation: live-ping 2.2s var(--ease-out-expo) infinite;
+}
+
+/* ── Frosted glass (hero, after the "midnight cathedral" reference) ── */
+.frost-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #ffffff;
+  background: rgba(186, 214, 247, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(186, 215, 247, 0.12);
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+.frost-pill:hover {
+  background: rgba(186, 214, 247, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(186, 215, 247, 0.24), 0 0 24px -4px rgba(186, 207, 247, 0.35);
+}
+.frost-pill-outline {
+  background: transparent;
+  color: #d1e4fa;
+}
+.deep-glass {
+  border-radius: 16px;
+  background: rgba(5, 6, 15, 0.97);
+  box-shadow:
+    inset 0 1px 1px rgba(216, 236, 248, 0.2),
+    inset 0 24px 48px rgba(168, 216, 245, 0.06),
+    inset 0 0 0 1px rgba(199, 211, 234, 0.08),
+    0 16px 32px rgba(0, 0, 0, 0.3);
+}
+.glass-plate {
+  border-radius: 16px;
+  background: rgba(10, 13, 28, 0.86);
+  box-shadow:
+    inset 0 1px 1px rgba(199, 211, 234, 0.12),
+    inset 0 24px 48px rgba(199, 211, 234, 0.05),
+    inset 0 0 0 1px rgba(186, 214, 247, 0.06),
+    0 24px 32px rgba(6, 6, 14, 0.7);
+}
+.frost-input {
+  border-radius: 6px;
+  background: rgba(199, 211, 234, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(186, 215, 247, 0.12);
+}
+.frost-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #d1e4fa;
+  background: rgba(199, 211, 234, 0.12);
+  box-shadow: inset 0 1px 1px rgba(216, 236, 248, 0.12);
+}
+.frost-tile {
+  display: grid;
+  place-items: center;
+  border-radius: 9999px;
+  background: rgba(186, 214, 247, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(186, 215, 247, 0.12), inset 0 1px 1px rgba(216, 236, 248, 0.16);
+}
+.skywash {
+  background: linear-gradient(0deg, #98c0ef 0%, #d8ecf8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ── Component micro-animations ──────────────────────────────── */
+/* Chrome sheen across the nav wordmark (and quicker on hover) */
+.nav-sheen {
+  background: linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, 0.9) 50%, transparent 62%) no-repeat;
+  background-size: 260% 100%;
+  background-position: 130% 0;
+  mix-blend-mode: screen;
+  animation: sheen 7s ease-in-out 2s infinite;
+}
+.group:hover .nav-sheen {
+  animation: sheen 1.1s ease-in-out;
+}
+/* Nav links: an underline that draws from the centre */
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  transform: scaleX(0);
+  transition: transform 0.45s var(--ease-out-expo);
+}
+.nav-link:hover::after {
+  transform: scaleX(1);
+}
+/* Pills: a sweep of light passes when hovered */
+.frost-pill {
+  position: relative;
+  overflow: hidden;
+}
+.frost-pill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 30%, rgba(216, 236, 248, 0.22) 50%, transparent 70%);
+  transform: translateX(-120%);
+  transition: transform 0.8s var(--ease-out-expo);
+  pointer-events: none;
+}
+.frost-pill:hover::after {
+  transform: translateX(120%);
+}
+/* Glass faces: a slow shimmer crosses them now and then */
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(115deg, transparent 40%, rgba(216, 236, 248, 0.07) 50%, transparent 60%);
+  background-size: 300% 100%;
+  animation: sheen 9s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ── Diagram flow lines ──────────────────────────────────────── */
+.flow-line {
+  stroke-dasharray: 3 7;
+  animation: flow 1.6s linear infinite;
+}
+}
+
+@keyframes live-ping {
+  0% { transform: scale(0.4); opacity: 0.9; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+@keyframes flow {
+  to { stroke-dashoffset: -20; }
+}
+
+/* ── Custom cursor (desktop only) ────────────────────────────── */
+@media (pointer: fine) {
+  html.has-cursor,
+  html.has-cursor a,
+  html.has-cursor button {
+    cursor: none;
+  }
+}
+
+/* ── Reduced motion ──────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
